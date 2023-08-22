@@ -1,36 +1,32 @@
-from .models import Transaction
+from .models import TransactionRelationship
 
+# Using closure table to check if adding a parent forms a cycle
 def would_form_cycle(child, potential_parent):
-    # Base cases
-    if not potential_parent:
-        return False
-    if child == potential_parent:
-        return True
-    
-    current = potential_parent
-    while current.parent:
-        if current.parent == child:
-            return True
-        current = current.parent
-    
-    return False
+    return TransactionRelationship.objects.filter(ancestor=child, descendant=potential_parent).exists()
 
-def transaction_generator(trans):
-    stack = [trans]
+# Helper function to create transaction relationships
+def create_transaction_relationships(transaction):
+    # Relationship of transaction to itself
+    TransactionRelationship.objects.create(ancestor=transaction, descendant=transaction, depth=0)
     
-    while stack:
-        current_trans = stack.pop()
-        yield current_trans.amount
-        stack.extend(current_trans.transaction_set.all())
-
-def calculate_sum(trans):
-    return sum(transaction_generator(trans))
+    # Relationships based on the parent's relationships
+    if transaction.parent:
+        parent_relations = TransactionRelationship.objects.filter(descendant=transaction.parent)
+        for relation in parent_relations:
+            TransactionRelationship.objects.create(
+                ancestor=relation.ancestor, 
+                descendant=transaction, 
+                depth=relation.depth + 1
+            )
 
 def construct_tree(trans):
-        return {
-            "id": trans.id,
-            "amount": trans.amount,
-            "type": trans.type,
-            "parent": trans.parent.id if trans.parent else None,
-            "children": [construct_tree(child) for child in Transaction.objects.filter(parent=trans)]
-        }
+    child_relations = TransactionRelationship.objects.filter(ancestor=trans, depth=1)
+    children_transactions = [relation.descendant for relation in child_relations]
+
+    return {
+        "id": trans.id,
+        "amount": trans.amount,
+        "type": trans.type,
+        "parent": trans.parent.id if trans.parent else None,
+        "children": [construct_tree(child) for child in children_transactions]
+    }

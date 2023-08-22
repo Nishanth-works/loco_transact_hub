@@ -6,3 +6,8 @@ class Transaction(models.Model):
     amount = models.FloatField()
     type = models.CharField(max_length=255)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
+
+class TransactionRelationship(models.Model):
+    ancestor = models.ForeignKey(Transaction, related_name='descendant_links', on_delete=models.CASCADE)
+    descendant = models.ForeignKey(Transaction, related_name='ancestor_links', on_delete=models.CASCADE)
+    depth = models.PositiveIntegerField()  # Distance between ancestor and descendant

@@ -1,9 +1,9 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from ..models import Transaction
+from ..models import Transaction, TransactionRelationship  # Importing TransactionRelationship
 from ..serializers import TransactionSerializer
-from ..transact_utils import would_form_cycle
+from ..transact_utils import would_form_cycle, create_transaction_relationships
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
 import json
@@ -16,12 +16,14 @@ def create_transaction(request):
         data = request.data
         potential_parent = Transaction.objects.filter(id=data.get('parent')).first()
 
-        # Check for cycle
         if potential_parent and would_form_cycle(None, potential_parent):
             return JsonResponse({"status": "error", "message": "Setting this parent would form a cycle"})
 
         transaction = Transaction(user=request.user, amount=data['amount'], type=data['type'], parent=potential_parent)
         transaction.save()
+
+        create_transaction_relationships(transaction)  # Add relationships after transaction creation
+
         return JsonResponse({"status": "ok", "transaction_id": transaction.id})
 
     except KeyError:
@@ -53,9 +55,15 @@ def transaction_detail(request, transaction_id):
             data = json.loads(request.body)
             potential_parent = Transaction.objects.filter(id=data.get('parent')).first()
             
-            # Check for cycle
             if potential_parent and would_form_cycle(transaction, potential_parent):
                 return JsonResponse({"status": "error", "message": "Setting this parent would form a cycle"})
+
+            # If parent is changed, update relationships
+            if 'parent' in data:
+                TransactionRelationship.objects.filter(descendant=transaction).delete()
+                transaction.parent = potential_parent  # Update parent temporarily for relationship creation
+                create_transaction_relationships(transaction)
+                transaction.parent = None  # Reset parent, as serializer will handle the saving
             
             serializer = TransactionSerializer(transaction, data=data)
             if serializer.is_valid():
@@ -84,7 +92,9 @@ def delete_transaction(request, transaction_id):
                 'parent_id': transaction.parent_id
             })
 
+        TransactionRelationship.objects.filter(descendant=transaction).delete()  # Remove relationships
         transaction.delete()
+
         return JsonResponse({"status": "deleted"})
 
     except ObjectDoesNotExist:

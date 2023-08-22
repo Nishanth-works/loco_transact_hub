@@ -4,7 +4,6 @@ from ..models import Transaction
 from django.http import JsonResponse
 from ..transact_utils import construct_tree
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def transaction_tree(request, transaction_id):
