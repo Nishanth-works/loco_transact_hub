@@ -19,6 +19,16 @@ def create_transaction_relationships(transaction):
                 depth=relation.depth + 1
             )
 
+def transaction_generator(trans):
+    """Generator to yield amounts for the transaction and its descendants"""
+    descendant_relations = TransactionRelationship.objects.filter(ancestor=trans)
+    for relation in descendant_relations:
+        yield relation.descendant.amount
+
+def calculate_sum(trans):
+    """Calculate the sum of amounts for the transaction and its descendants"""
+    return sum(transaction_generator(trans))
+
 def construct_tree(trans):
     child_relations = TransactionRelationship.objects.filter(ancestor=trans, depth=1)
     children_transactions = [relation.descendant for relation in child_relations]

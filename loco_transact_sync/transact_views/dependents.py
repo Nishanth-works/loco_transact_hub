@@ -3,25 +3,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from ..models import Transaction
 from django.http import JsonResponse
-
+from ..transact_utils import would_form_cycle, calculate_sum
 from ..models import TransactionRelationship
-
-def would_form_cycle(child, potential_parent):
-    """Check if setting potential_parent as the parent of child would create a cycle"""
-    if child and potential_parent:
-        return TransactionRelationship.objects.filter(ancestor=child, descendant=potential_parent).exists()
-    return False
-
-def transaction_generator(trans):
-    """Generator to yield amounts for the transaction and its descendants"""
-    descendant_relations = TransactionRelationship.objects.filter(ancestor=trans)
-    for relation in descendant_relations:
-        yield relation.descendant.amount
-
-def calculate_sum(trans):
-    """Calculate the sum of amounts for the transaction and its descendants"""
-    return sum(transaction_generator(trans))
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
