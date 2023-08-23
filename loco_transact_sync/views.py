@@ -14,7 +14,7 @@ def list_transactions(request):
         transactions_list = Transaction.objects.filter(user=request.user, type__icontains=search_query)
 
         # Pagination
-        paginator = Paginator(transactions_list, 5)  # Show 25 transactions per page
+        paginator = Paginator(transactions_list, 5)  # Show 5 transactions per page
         page = request.GET.get('page')
         try:
             transactions = paginator.page(page)
