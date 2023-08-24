@@ -4,6 +4,7 @@ Welcome to Loco Transact Hub, a Django-based project that deals with the managem
 
 ## Table of Contents
 
+- [Working Demo](#working-demo)
 - [Project Structure](#project-structure)
 - [Key Features](#key-features)
 - [Model Structure and Advantages](#model-structure-and-advantages)
@@ -13,6 +14,10 @@ Welcome to Loco Transact Hub, a Django-based project that deals with the managem
 - [Conclusion](#conclusion)
 
 
+
+## Working Demo
+
+[Click here to Watch Loco Transact Hub Demo](https://youtu.be/0nSGoQYphwM)
 
 ## Project Structure
 <pre>
@@ -66,10 +71,12 @@ loco_project/
 1. #### **Robust Security**: The application uses Django's built-in authentication mechanism. Every transaction is tied to a user, ensuring data integrity and accountability. CSRF tokens are used to prevent cross-site request forgery.
 2. #### **Pagination**: While displaying a list of transactions, pagination has been employed to handle large data sets, making the UI faster and user-friendly.
 3. #### **Lazy Sum Calculation**: A lazy read method is utilized for calculating the sum of transactions. This ensures efficient summing up of transaction amounts without overloading the system.
-4. #### **Smart Parent ID Assignment**: During transaction editing, if the parent ID is being updated, the system suggests possible parent IDs to avoid loops in transaction relationships. This user-friendly feature enhances data reliability.
+4. #### **Smart Parent ID Assignment**: During transaction editing, if the parent ID is being updated, the system suggests only possible parent IDs to avoid loops in transaction relationships. This user-friendly feature enhances data reliability.
 5. #### **Flexible Transaction Deletion**: If a transaction with child transactions is deleted, the user has the option to decide whether the child transactions' parent should be set to null or pointed to the deleted transaction's parent. This ensures the maintenance of the hierarchical relationship.
 6. #### **Visual Sum Hierarchy**: The visualizer showcases the hierarchy in which the sum was calculated. This offers a clear, visual representation for better user comprehension
-7. #### **Search Filter**:
+7. #### **Partial Type  Search Filter**: users can retrieve transactions with just a partial type name, improving usability.
+8. #### **Serialization**: Efficient conversion of complex data types into a format that can be easily rendered and shared, enabling the easy interchange of transactional data between the service and its consumers.
+9. #### *Modular Design**: Code is well-structured, organized, and split into distinct modules for better maintainability.
 
 ## Model Structure and Advantages
 
@@ -105,9 +112,9 @@ This model establishes a relationship between transactions. Each record maps an 
 ## Installation and Setup
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Nishanth-works/loco_transact_hub.git
 
-cd loco_project
+cd loco_transact_hub
 
 pip install -r requirements.txt
 
@@ -127,7 +134,7 @@ python manage.py test loco_transact_sync.tests
 ## Why Django for this Project?
 Django shines in projects that demand robust data relationships and user-centric features:
 
--  ORM Power: Django's ORM allows complex database relationships to be established and manipulated with Pythonic ease. For a project that pivots on transaction relationships, this is invaluable.
+-  ORM Power: Django's ORM allows complex database relationships to be established and manipulated with Pythonic ease. For a project that pivots on transaction relationships, this is great.
 
 -  Security: Django's built-in security measures, including authentication and CSRF protection, mean we can focus on the core logic without fretting about vulnerabilities.
 
@@ -136,5 +143,5 @@ Django shines in projects that demand robust data relationships and user-centric
 -  Community and Plugins: A vast array of plugins and a bustling community ensure that any auxiliary features or troubleshooting is but a stone's throw away.
 
 ## Conclusion:
-loco_transact_hub offers a sophisticated way of handling and visualizing transactional relationships. With the power of Django and a well-thought-out architecture
+loco_transact_hub offers a sophisticated way of handling and visualizing transactional relationships. With the power of Django and a well-thought-out architecture. 
 For any feedback or contributions, please raise an issue or submit a PR.
